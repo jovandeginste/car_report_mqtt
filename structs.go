@@ -81,6 +81,7 @@ func (c *Car) RefuelingData() CarWithRefueling {
 
 	cwr.DeltaMileage = cwr.Mileage - pr.Mileage
 	cwr.DeltaTime = (r.Date - pr.Date) / 1000
+	cwr.UnitPer100 = float32(math.Round(1000*float64(100*r.Volume/float32(cwr.DeltaMileage))) / 1000)
 
 	return cwr
 }
@@ -136,4 +137,5 @@ type CarWithRefueling struct {
 	Timestamp    string  `json:"timestamp"`
 	DeltaTime    int64   `json:"delta_time"`
 	DeltaMileage int64   `json:"delta_mileage"`
+	UnitPer100   float32 `json:"unit_per_100"`
 }

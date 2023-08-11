@@ -21,6 +21,7 @@ var measurements = []map[string]string{
 	{"ha_value": "volume", "name": "Volume", "icon": "fuel", "unit": "L", "class": "volume"},
 	{"ha_value": "price", "name": "Total price", "icon": "currency-eur", "unit": "€", "class": "monetary"},
 	{"ha_value": "price_per_unit", "name": "Price per unit", "icon": "currency-eur", "unit": "€/L", "class": "monetary"},
+	{"ha_value": "unit_per_100", "name": "Unit per 100", "icon": "gauge", "unit": "L/100km", "class": "volume"},
 }
 
 type MQTT struct {

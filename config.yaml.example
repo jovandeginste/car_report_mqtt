@@ -1,0 +1,4 @@
+db_root: "/path/to/CarReport/"
+mqtt_host: "tcp://localhost:1883"
+mqtt_username: "hass"
+mqtt_password: "hass"

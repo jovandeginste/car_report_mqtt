@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"path"
 	"time"
 
 	"github.com/glebarez/sqlite"
@@ -70,7 +71,7 @@ func lastFileIn(dir string) string {
 		log.Fatalf("Failed to read dir '%s': %s", dir, err)
 	}
 
-	return files[len(files)-1].Name()
+	return path.Join(dir, files[len(files)-1].Name())
 }
 
 func parse(db *gorm.DB, m *MQTT) error {

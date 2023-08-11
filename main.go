@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 	"path"
-	"time"
 
 	"github.com/glebarez/sqlite"
 	log "github.com/sirupsen/logrus"
@@ -46,8 +45,6 @@ func main() {
 	if err := parse(db, m); err != nil {
 		log.Fatalf("failed to parse data: %s", err)
 	}
-
-	time.Sleep(1 * time.Second)
 }
 
 func readConfig(file string) (*config, error) {

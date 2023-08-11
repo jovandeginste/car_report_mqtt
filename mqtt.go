@@ -12,8 +12,11 @@ import (
 
 var measurements = []map[string]string{
 	{"ha_value": "name", "name": "Name", "icon": "car-outline", "unit": "", "state_class": ""},
+	{"ha_value": "timestamp", "name": "Last refuel", "icon": "calendar-clock-outline", "unit": "", "class": "timestamp"},
 	{"ha_value": "color", "name": "Color", "icon": "palette", "unit": "", "state_class": ""},
-	{"ha_value": "mileage", "name": "Mileage", "icon": "counter", "unit": "km", "class": "distance"},
+	{"ha_value": "mileage", "name": "Total distance", "icon": "counter", "unit": "km", "class": "distance"},
+	{"ha_value": "delta_mileage", "name": "Distance between last refuels", "icon": "counter", "unit": "km", "class": "distance"},
+	{"ha_value": "delta_time", "name": "Time between last refuels", "icon": "clock-outline", "unit": "s", "class": "duration"},
 	{"ha_value": "fuel_type", "name": "Fuel type", "icon": "gas-station-outline", "unit": "", "state_class": ""},
 	{"ha_value": "volume", "name": "Volume", "icon": "fuel", "unit": "L", "class": "volume"},
 	{"ha_value": "price", "name": "Total price", "icon": "currency-eur", "unit": "€", "class": "monetary"},
@@ -141,7 +144,7 @@ func (m MQTT) sendLastMetric(car *Car) error {
 	identifierLower := strings.ToLower(identifier)
 	adTopic := fmt.Sprintf("homeassistant/sensor/%s/state", identifierLower)
 
-	lastMetric := car.LastRefueling()
+	lastMetric := car.RefuelingData()
 
 	j, err := json.Marshal(lastMetric)
 	if err != nil {
@@ -149,6 +152,7 @@ func (m MQTT) sendLastMetric(car *Car) error {
 	}
 
 	m.Logger().Infof("Publishing measurement for %s to %s", identifier, adTopic)
+	m.Logger().Infof("Payload: %s", j)
 
 	if token := m.client.Connect(); token.Wait() && token.Error() != nil {
 		return token.Error()

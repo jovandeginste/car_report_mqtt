@@ -10,7 +10,7 @@ import (
 type Car struct {
 	ID             int         `gorm:"column:_id"             json:"-"`
 	Name           string      `gorm:"column:car__name"       json:"name"`
-	InitialMileage int         `gorm:"column:initial_mileage" json:"initial_mileage"`
+	InitialMileage int64       `gorm:"column:initial_mileage" json:"initial_mileage"`
 	Color          int64       `gorm:"column:color"           json:"-"`
 	Refuelings     []Refueling `json:"-"`
 }
@@ -35,22 +35,52 @@ func (c *Car) HEXColor() string {
 	return hexCol
 }
 
-func (c *Car) LastRefueling() CarWithRefueling {
+func (c *Car) LastRefueling() *Refueling {
+	if len(c.Refuelings) < 1 {
+		return nil
+	}
+
+	r := c.Refuelings[len(c.Refuelings)-1]
+
+	return &r
+}
+
+func (c *Car) PenultimateRefueling() *Refueling {
+	if len(c.Refuelings) < 2 {
+		return nil
+	}
+
+	r := c.Refuelings[len(c.Refuelings)-2]
+
+	return &r
+}
+
+func (c *Car) RefuelingData() CarWithRefueling {
 	cwr := CarWithRefueling{
 		Car:   *c,
 		Color: c.HEXColor(),
 	}
 
-	if len(c.Refuelings) == 0 {
+	r := c.LastRefueling()
+	if r == nil {
 		return cwr
 	}
 
-	cwr.Refueling = c.Refuelings[len(c.Refuelings)-1]
+	cwr.Refueling = *r
 	cwr.PricePerUnit = cwr.Refueling.PricePerUnit()
+	cwr.Timestamp = cwr.Refueling.Timestamp()
 
 	if cwr.Refueling.FuelType != nil {
 		cwr.FuelType = cwr.Refueling.FuelType.Name
 	}
+
+	pr := c.PenultimateRefueling()
+	if pr == nil {
+		return cwr
+	}
+
+	cwr.DeltaMileage = cwr.Mileage - pr.Mileage
+	cwr.DeltaTime = (r.Date - pr.Date) / 1000
 
 	return cwr
 }
@@ -68,7 +98,7 @@ func (FuelType) TableName() string {
 type Refueling struct {
 	ID         int       `gorm:"column:_id"          json:"-"`
 	Date       int64     `gorm:"column:date"         json:"-"`
-	Mileage    int       `gorm:"column:mileage"      json:"mileage"`
+	Mileage    int64     `gorm:"column:mileage"      json:"mileage"`
 	Volume     float32   `gorm:"column:volume"       json:"volume"`
 	Price      float32   `gorm:"column:price"        json:"price"`
 	Partial    bool      `gorm:"column:partial"      json:"partial"`
@@ -81,6 +111,10 @@ type Refueling struct {
 
 func (r *Refueling) Time() time.Time {
 	return time.Unix(r.Date/1000, 0)
+}
+
+func (r *Refueling) Timestamp() string {
+	return r.Time().Format(time.RFC3339)
 }
 
 func (Refueling) TableName() string {
@@ -99,4 +133,7 @@ type CarWithRefueling struct {
 	FuelType     string  `json:"fuel_type"`
 	Color        string  `json:"color"`
 	PricePerUnit float32 `json:"price_per_unit"`
+	Timestamp    string  `json:"timestamp"`
+	DeltaTime    int64   `json:"delta_time"`
+	DeltaMileage int64   `json:"delta_mileage"`
 }

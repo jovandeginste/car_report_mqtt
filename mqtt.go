@@ -79,8 +79,7 @@ type payload struct {
 }
 
 func (m MQTT) broadcastAutoDiscover(car *Car) error {
-	identifier := fmt.Sprintf("car_report_%s", car.SaneName())
-	identifierLower := strings.ToLower(identifier)
+	identifier := strings.ToLower(fmt.Sprintf("car_report_%s", car.SaneName()))
 
 	if m.client == nil {
 		return fmt.Errorf("no mqtt client")
@@ -93,22 +92,22 @@ func (m MQTT) broadcastAutoDiscover(car *Car) error {
 	defer m.client.Disconnect(250)
 
 	for _, measurement := range measurements {
-		measurementIdentifier := fmt.Sprintf("%s_%s", identifierLower, measurement["ha_value"])
+		measurementIdentifier := fmt.Sprintf("%s_%s", identifier, measurement["ha_value"])
 		device := deviceStruct{
 			Model:        car.Name,
-			Name:         identifierLower,
+			Name:         identifier,
 			Manufacturer: "CarReport",
-			Identifiers:  []string{identifier, identifierLower},
+			Identifiers:  []string{identifier},
 		}
 
-		adTopic := fmt.Sprintf("homeassistant/sensor/%s/%s/config", identifierLower, measurement["ha_value"])
+		adTopic := fmt.Sprintf("homeassistant/sensor/%s/%s/config", identifier, measurement["ha_value"])
 
 		adPayload := payload{
 			Name:              measurement["name"],
 			ValueTemplate:     fmt.Sprintf("{{ value_json.%s }}", measurement["ha_value"]),
 			UnitOfMeasurement: measurement["unit"],
 			Icon:              "mdi:" + measurement["icon"],
-			StateTopic:        fmt.Sprintf("homeassistant/sensor/%s/state", identifierLower),
+			StateTopic:        fmt.Sprintf("homeassistant/sensor/%s/state", identifier),
 			ObjectID:          measurementIdentifier,
 			UniqueID:          measurementIdentifier,
 			Device:            device,
@@ -141,9 +140,8 @@ func (m MQTT) broadcastAutoDiscover(car *Car) error {
 }
 
 func (m MQTT) sendLastMetric(car *Car) error {
-	identifier := fmt.Sprintf("car_report_%s", car.SaneName())
-	identifierLower := strings.ToLower(identifier)
-	adTopic := fmt.Sprintf("homeassistant/sensor/%s/state", identifierLower)
+	identifier := strings.ToLower(fmt.Sprintf("car_report_%s", car.SaneName()))
+	adTopic := fmt.Sprintf("homeassistant/sensor/%s/state", identifier)
 
 	lastMetric := car.RefuelingData()
 

@@ -18,7 +18,7 @@ type config struct {
 }
 
 func main() {
-	log.SetLevel(log.DebugLevel)
+	// log.SetLevel(log.DebugLevel)
 
 	cfgFile := "config.yaml"
 	if len(os.Args) > 1 {

@@ -80,7 +80,7 @@ func parse(db *gorm.DB, m *MQTT) error {
 
 	for i := range cars {
 		car := &cars[i]
-		log.Printf("car: %s (#%s)", car.Name, car.HEXColor())
+		log.Printf("car: %s (%s)", car.Name, car.HEXColor())
 		m.InitializeData(car)
 	}
 

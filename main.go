@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path"
+	"slices"
 
 	"github.com/glebarez/sqlite"
 	log "github.com/sirupsen/logrus"
@@ -31,6 +32,9 @@ func main() {
 	}
 
 	dbName := lastFileIn(c.DBRoot)
+	if dbName == "" {
+		log.Fatalf("no database found in %s", c.DBRoot)
+	}
 
 	log.Infof("Reading file: %s", dbName)
 
@@ -68,7 +72,20 @@ func lastFileIn(dir string) string {
 		log.Fatalf("Failed to read dir '%s': %s", dir, err)
 	}
 
-	return path.Join(dir, files[len(files)-1].Name())
+	slices.Reverse(files)
+
+	for _, f := range files {
+		fp := path.Join(dir, f.Name())
+
+		if fi, err := os.Stat(fp); err == nil && fi.Size() == 0 {
+			log.Printf("skipping empty file: %s", fp)
+			continue
+		}
+
+		return fp
+	}
+
+	return ""
 }
 
 func parse(db *gorm.DB, m *MQTT) error {

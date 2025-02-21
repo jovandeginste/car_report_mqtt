@@ -4,6 +4,7 @@ import (
 	"os"
 	"path"
 	"slices"
+	"strings"
 
 	"github.com/glebarez/sqlite"
 	log "github.com/sirupsen/logrus"
@@ -75,6 +76,10 @@ func lastFileIn(dir string) string {
 	slices.Reverse(files)
 
 	for _, f := range files {
+		if !strings.HasSuffix(f.Name(), ".db") {
+			continue
+		}
+
 		fp := path.Join(dir, f.Name())
 
 		if fi, err := os.Stat(fp); err == nil && fi.Size() == 0 {

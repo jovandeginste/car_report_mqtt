@@ -43,6 +43,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to connect database: %s", err.Error())
 	}
+	defer func() {
+		sqlDB, _ := db.DB()
+		if sqlDB != nil {
+			sqlDB.Close()
+		}
+	}()
 
 	m := &MQTT{}
 	m.Initialize(c.MQTTHost, c.MQTTUsername, c.MQTTPassword)
